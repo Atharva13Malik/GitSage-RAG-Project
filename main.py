@@ -6,6 +6,8 @@ from app.document_loader import get_repository_files
 
 from app.document_loader import get_repository_files, load_documents
 
+from app.chunker import create_chunks
+
 
 # STEP 3: Take GitHub repository URL from user
 repo_url = input("Enter Github Repository URL: ")
@@ -26,14 +28,16 @@ print("Repository location:", repo_path)
 files = get_repository_files(repo_path)
 
 documents = load_documents(files)
+chunks=create_chunks(documents)
 
 print("\nTotal documents:", len(documents))
+print("Total chunks:", len(chunks))
 
-if documents:
-    print("\nFirst document metadata:")
-    print(documents[0].metadata)
+if chunks:
+    print("\nFirst chunk metadata:")
+    print(chunks[0].metadata)
 
-    print("\nFirst document content preview:")
-    print(documents[0].page_content[:300])
+    print("\nFirst chunk content:")
+    print(chunks[0].page_content[:500])
 
 
