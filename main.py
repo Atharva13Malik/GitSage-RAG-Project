@@ -6,6 +6,8 @@ from app.document_loader import get_repository_files
 
 from app.document_loader import get_repository_files, load_documents
 
+from app.embeddings import test_embedding
+
 from app.chunker import create_chunks
 
 
@@ -39,5 +41,9 @@ if chunks:
 
     print("\nFirst chunk content:")
     print(chunks[0].page_content[:500])
+
+test_embedding()
+
+
 
 
