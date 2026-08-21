@@ -9,7 +9,9 @@ from app.document_loader import get_repository_files, load_documents
 from app.chunker import create_chunks
 
 # STEP 4: Import function for generating embeddings
-from app.embeddings import generate_embeddings
+#from app.embeddings import generate_embeddings
+
+from app.vector_store import create_vector_store
 
 
 # 1. GET GITHUB REPOSITORY URL
@@ -54,19 +56,22 @@ chunks = create_chunks(documents)
 
 print("\nTotal chunks:", len(chunks))
 
-if chunks:
-    print("\nFirst chunk metadata:")
-    print(chunks[0].metadata)
+vector_store = create_vector_store(chunks)
 
-    print("\nFirst chunk content preview:")
-    print(chunks[0].page_content[:500])
+print("\nChromaDB created successfully")
+
+stored_count = vector_store._collection.count()
+
+print("Chunks stored in ChromaDB:", stored_count)
+
+
 
 
 # 6. GENERATE EMBEDDINGS
 
-embeddings = generate_embeddings(chunks)
+#embeddings = generate_embeddings(chunks)
 
-print("\nTotal embeddings:", len(embeddings))
+#print("\nTotal embeddings:", len(embeddings))
 
-if len(embeddings) > 0:
-    print("First embedding vector length:", len(embeddings[0]))
+#if len(embeddings) > 0:
+    #print("First embedding vector length:", len(embeddings[0]))
