@@ -8,10 +8,15 @@ from app.document_loader import get_repository_files, load_documents
 # STEP 3: Import function for splitting Documents into chunks
 from app.chunker import create_chunks
 
-# STEP 4: Import function for generating embeddings
-#from app.embeddings import generate_embeddings
-
+# STEP 4: Import function for creating ChromaDB vector store
 from app.vector_store import create_vector_store
+
+# STEP 5: Import function for creating MMR retriever
+from app.retriever import create_retriever
+
+from app.llm import llm
+
+from app.prompt import prompt
 
 
 # 1. GET GITHUB REPOSITORY URL
@@ -56,6 +61,9 @@ chunks = create_chunks(documents)
 
 print("\nTotal chunks:", len(chunks))
 
+
+# 6. CREATE CHROMADB VECTOR STORE
+
 vector_store = create_vector_store(chunks)
 
 print("\nChromaDB created successfully")
@@ -65,13 +73,47 @@ stored_count = vector_store._collection.count()
 print("Chunks stored in ChromaDB:", stored_count)
 
 
+# 7. CREATE MMR RETRIEVER
+
+retriever = create_retriever(vector_store)
 
 
-# 6. GENERATE EMBEDDINGS
+# 8. ASK QUESTION ABOUT REPOSITORY
 
-#embeddings = generate_embeddings(chunks)
+question = input("\nAsk a question about the repository: ")
 
-#print("\nTotal embeddings:", len(embeddings))
 
-#if len(embeddings) > 0:
-    #print("First embedding vector length:", len(embeddings[0]))
+# 9. RETRIEVE RELEVANT CHUNKS
+
+retrieved_docs = retriever.invoke(question)
+
+context = ""
+
+for doc in retrieved_docs:
+    context = context + "\n\n"
+    context = context + "File: " + doc.metadata.get("file_path", "Unknown")
+    context = context + "\n"
+    context = context + doc.page_content
+
+explanation_style = input(
+    "\nChoose explanation style (simple/concise/detailed/beginner-friendly): "
+)
+
+messages = prompt.format_messages(
+    context=context,
+    question=question,
+    explanation_style=explanation_style
+)
+
+print("\nRetrieved chunks:")
+
+for doc in retrieved_docs:
+    print("\nSource:", doc.metadata.get("file_path"))
+    print(doc.page_content[:500])
+
+
+response = llm.invoke(messages)
+
+print("\nGitSage Answer:\n")
+print(response.content)
+
