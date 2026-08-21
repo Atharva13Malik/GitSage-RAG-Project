@@ -9,3 +9,5 @@ python-dotenv
 GitPython
 huggingface-hub
 langchain-groq
+fastapi
+uvicorn
