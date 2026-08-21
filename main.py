@@ -1,49 +1,72 @@
 # STEP 1: Import function for cloning GitHub repository
 from app.repo_loader import clone_repository
 
-# STEP 2: Import function for finding useful/supported files from repository
-from app.document_loader import get_repository_files
-
+# STEP 2: Import functions for finding useful files
+# and converting them into LangChain Documents
 from app.document_loader import get_repository_files, load_documents
 
-from app.embeddings import test_embedding
-
+# STEP 3: Import function for splitting Documents into chunks
 from app.chunker import create_chunks
 
+# STEP 4: Import function for generating embeddings
+from app.embeddings import generate_embeddings
 
-# STEP 3: Take GitHub repository URL from user
+
+# 1. GET GITHUB REPOSITORY URL
+
 repo_url = input("Enter Github Repository URL: ")
 
 
-# STEP 4: Clone the repository inside the repos/ folder
-# If repository already exists, it will use the existing repository
+# 2. CLONE REPOSITORY
+
 repo_path = clone_repository(repo_url)
 
-
-# STEP 5: Display the local path where repository is stored
-print("Repository location:", repo_path)
+print("\nRepository location:", repo_path)
 
 
-# STEP 6: Get only useful files from the repository
-# Example: .py, .js, .java, .md, .json etc.
-# Ignored folders like .git, node_modules, .venv etc. are skipped
+# 3. FIND USEFUL FILES
+
 files = get_repository_files(repo_path)
 
+print("\nUseful files found:")
+
+for file in files:
+    print(file)
+
+
+# 4. CONVERT FILES INTO LANGCHAIN DOCUMENTS
+
 documents = load_documents(files)
-chunks=create_chunks(documents)
 
 print("\nTotal documents:", len(documents))
-print("Total chunks:", len(chunks))
+
+if documents:
+    print("\nFirst document metadata:")
+    print(documents[0].metadata)
+
+    print("\nFirst document content preview:")
+    print(documents[0].page_content[:300])
+
+
+# 5. SPLIT DOCUMENTS INTO CHUNKS
+
+chunks = create_chunks(documents)
+
+print("\nTotal chunks:", len(chunks))
 
 if chunks:
     print("\nFirst chunk metadata:")
     print(chunks[0].metadata)
 
-    print("\nFirst chunk content:")
+    print("\nFirst chunk content preview:")
     print(chunks[0].page_content[:500])
 
-test_embedding()
 
+# 6. GENERATE EMBEDDINGS
 
+embeddings = generate_embeddings(chunks)
 
+print("\nTotal embeddings:", len(embeddings))
 
+if len(embeddings) > 0:
+    print("First embedding vector length:", len(embeddings[0]))
